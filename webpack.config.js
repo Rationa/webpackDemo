@@ -1,5 +1,6 @@
 const path = require("path");
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { VueLoaderPlugin } = require("vue-loader/dist");
 
 module.exports = {
   // 指定为开发模式
@@ -13,7 +14,8 @@ module.exports = {
     // 输出到ist文件夹(打包自动生成)
     path: path.resolve(__dirname, "dist"), // __dirname：表示当前文件的绝对路径(根目录)
     // 输出文件名在dist文件夹里的js文件夹chunk.js下
-    filename: "js/chunk-[contenthash].js" // 使用由生成的内容产生的hash
+    filename: "js/chunk-[contenthash].js", // 使用由生成的内容产生的hash
+    clean: true
   },
   // 插件
   plugins: [
@@ -24,7 +26,8 @@ module.exports = {
       filename: "index.html",
       // js插入到body
       inject: "body"
-    })
+    }),
+    // new VueLoaderPlugin()
   ],
   // 
   module: {
@@ -47,7 +50,29 @@ module.exports = {
           }
 
         }] // 注意顺序！ 是从后往前加载的 (即先加载css-loader,再加载style-loader)
-      }
+      },
+      {
+        test: /\.(png|jpg|gif|jpeg|webp|svg|ico)$/, // 正则匹配图片文件
+        type: "asset", // 使用asset模块
+        generator: { // 生成文件
+          // 输出文件名
+          filename: "img/[name].[hash:6][ext]"
+        },
+        parser: { // 匹配图片大小
+          dataUrlCondition: { // 图片大小小于10kb
+            maxSize: 10 * 1024 // 10kb
+          }
+        }
+      },
+      {
+        test: /\.js$/, // 正则匹配js文件
+        loader: "babel-loader"
+      },
+      // {
+      //   // 检测.vue 结尾的文件
+      //   test: /\.vue$/,
+      //   loader: "vue-loader"
+      // }
     ]
   }
 }
